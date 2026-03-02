@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/diagnostics-otel",
+  "name": "@shipstack/diagnostics-otel",
   "version": "2026.2.27",
   "description": "OpenClaw diagnostics OpenTelemetry exporter",
   "type": "module",
@@ -16,9 +16,10 @@
     "@opentelemetry/sdk-trace-base": "^2.5.1",
     "@opentelemetry/semantic-conventions": "^1.39.0"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

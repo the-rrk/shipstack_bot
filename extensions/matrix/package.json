@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/matrix",
+  "name": "@shipstack/matrix",
   "version": "2026.2.27",
   "description": "OpenClaw Matrix channel plugin",
   "type": "module",
@@ -10,7 +10,7 @@
     "music-metadata": "^11.12.1",
     "zod": "^4.3.6"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -25,9 +25,10 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/matrix",
+      "npmSpec": "@shipstack/matrix",
       "localPath": "extensions/matrix",
       "defaultChoice": "npm"
     }
   }
 }
+

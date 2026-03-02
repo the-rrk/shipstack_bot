@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/twitch",
+  "name": "@shipstack/twitch",
   "version": "2026.2.27",
   "description": "OpenClaw Twitch channel plugin",
   "type": "module",
@@ -9,9 +9,10 @@
     "@twurple/chat": "^8.0.3",
     "zod": "^4.3.6"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

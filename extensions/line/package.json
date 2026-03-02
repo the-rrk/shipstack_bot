@@ -1,10 +1,10 @@
 {
-  "name": "@openclaw/line",
+  "name": "@shipstack/line",
   "version": "2026.2.27",
   "private": true,
   "description": "OpenClaw LINE channel plugin",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -19,9 +19,10 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/line",
+      "npmSpec": "@shipstack/line",
       "localPath": "extensions/line",
       "defaultChoice": "npm"
     }
   }
 }
+

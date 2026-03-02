@@ -1,12 +1,13 @@
 {
-  "name": "@openclaw/telegram",
+  "name": "@shipstack/telegram",
   "version": "2026.2.27",
   "private": true,
   "description": "OpenClaw Telegram channel plugin",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

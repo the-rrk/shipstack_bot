@@ -1,11 +1,12 @@
 {
-  "name": "@openclaw/lobster",
+  "name": "@shipstack/lobster",
   "version": "2026.2.27",
   "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

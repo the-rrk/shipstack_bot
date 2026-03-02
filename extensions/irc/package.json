@@ -1,11 +1,12 @@
 {
-  "name": "@openclaw/irc",
+  "name": "@shipstack/irc",
   "version": "2026.2.27",
   "description": "OpenClaw IRC channel plugin",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+
