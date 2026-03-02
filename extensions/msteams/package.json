@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/msteams",
+  "name": "@shipstack/msteams",
   "version": "2026.2.27",
   "description": "OpenClaw Microsoft Teams channel plugin",
   "type": "module",
@@ -7,7 +7,7 @@
     "@microsoft/agents-hosting": "^1.3.1",
     "express": "^5.2.1"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -24,9 +24,10 @@
       "order": 60
     },
     "install": {
-      "npmSpec": "@openclaw/msteams",
+      "npmSpec": "@shipstack/msteams",
       "localPath": "extensions/msteams",
       "defaultChoice": "npm"
     }
   }
 }
+

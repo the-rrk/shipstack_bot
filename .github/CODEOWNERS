@@ -1,0 +1,34 @@
+# CODEOWNERS file for ShipStack
+# This file defines who is responsible for code review
+# Only the repository owner (albinjoseph03) has write access to main branch
+
+# Default owner for everything in the repo
+* @albinjoseph03
+
+# Core files - require owner approval
+/package.json @albinjoseph03
+/AGENTS.md @albinjoseph03
+/README.md @albinjoseph03
+/LICENSE @albinjoseph03
+/SECURITY.md @albinjoseph03
+/CONTRIBUTING.md @albinjoseph03
+/CODE_OF_CONDUCT.md @albinjoseph03
+
+# GitHub configuration - require owner approval
+/.github/ @albinjoseph03
+
+# Source code
+/src/ @albinjoseph03
+
+# Extensions
+/extensions/ @albinjoseph03
+
+# Apps
+/apps/ @albinjoseph03
+
+# Documentation
+/docs/ @albinjoseph03
+
+# Configuration files
+/tsconfig.json @albinjoseph03
+/vitest.*.ts @albinjoseph03

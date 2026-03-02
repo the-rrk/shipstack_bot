@@ -1,12 +1,12 @@
 {
-  "name": "@openclaw/zalo",
+  "name": "@shipstack/zalo",
   "version": "2026.2.27",
   "description": "OpenClaw Zalo channel plugin",
   "type": "module",
   "dependencies": {
     "undici": "7.22.0"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -24,9 +24,10 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalo",
+      "npmSpec": "@shipstack/zalo",
       "localPath": "extensions/zalo",
       "defaultChoice": "npm"
     }
   }
 }
+

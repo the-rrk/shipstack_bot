@@ -1,14 +1,15 @@
 {
-  "name": "@openclaw/acpx",
+  "name": "@shipstack/acpx",
   "version": "2026.2.27",
   "description": "OpenClaw ACP runtime backend via acpx",
   "type": "module",
   "dependencies": {
     "acpx": "^0.1.13"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

@@ -1,9 +1,9 @@
 {
-  "name": "@openclaw/bluebubbles",
+  "name": "@shipstack/bluebubbles",
   "version": "2026.2.27",
   "description": "OpenClaw BlueBubbles channel plugin",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -25,9 +25,10 @@
       "order": 75
     },
     "install": {
-      "npmSpec": "@openclaw/bluebubbles",
+      "npmSpec": "@shipstack/bluebubbles",
       "localPath": "extensions/bluebubbles",
       "defaultChoice": "npm"
     }
   }
 }
+

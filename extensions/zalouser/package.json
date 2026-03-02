@@ -1,12 +1,12 @@
 {
-  "name": "@openclaw/zalouser",
+  "name": "@shipstack/zalouser",
   "version": "2026.2.27",
   "description": "OpenClaw Zalo Personal Account plugin via zca-cli",
   "type": "module",
   "dependencies": {
     "@sinclair/typebox": "0.34.48"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -24,9 +24,10 @@
       "quickstartAllowFrom": true
     },
     "install": {
-      "npmSpec": "@openclaw/zalouser",
+      "npmSpec": "@shipstack/zalouser",
       "localPath": "extensions/zalouser",
       "defaultChoice": "npm"
     }
   }
 }
+

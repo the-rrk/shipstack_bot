@@ -1,13 +1,13 @@
 {
-  "name": "@openclaw/memory-core",
+  "name": "@shipstack/memory-core",
   "version": "2026.2.27",
   "private": true,
-  "description": "OpenClaw core memory search plugin",
+  "description": "ShipStack core memory search plugin",
   "type": "module",
-  "peerDependencies": {
-    "openclaw": ">=2026.1.26"
+  "devDependencies": {
+    "shipstack": "workspace:*"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]

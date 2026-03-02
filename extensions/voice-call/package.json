@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/voice-call",
+  "name": "@shipstack/voice-call",
   "version": "2026.2.27",
   "description": "OpenClaw voice-call plugin",
   "type": "module",
@@ -8,9 +8,10 @@
     "ws": "^8.19.0",
     "zod": "^4.3.6"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

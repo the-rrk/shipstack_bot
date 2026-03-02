@@ -1,5 +1,5 @@
 {
-  "name": "@openclaw/memory-lancedb",
+  "name": "@shipstack/memory-lancedb",
   "version": "2026.2.27",
   "private": true,
   "description": "OpenClaw LanceDB-backed long-term memory plugin with auto-recall/capture",
@@ -9,9 +9,10 @@
     "@sinclair/typebox": "0.34.48",
     "openai": "^6.25.0"
   },
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ]
   }
 }
+

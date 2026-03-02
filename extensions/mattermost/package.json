@@ -1,9 +1,9 @@
 {
-  "name": "@openclaw/mattermost",
+  "name": "@shipstack/mattermost",
   "version": "2026.2.27",
   "description": "OpenClaw Mattermost channel plugin",
   "type": "module",
-  "openclaw": {
+  "shipstack": {
     "extensions": [
       "./index.ts"
     ],
@@ -17,9 +17,10 @@
       "order": 65
     },
     "install": {
-      "npmSpec": "@openclaw/mattermost",
+      "npmSpec": "@shipstack/mattermost",
       "localPath": "extensions/mattermost",
       "defaultChoice": "npm"
     }
   }
 }
+
