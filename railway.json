@@ -7,7 +7,7 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "startCommand": "node openclaw.mjs config set gateway.mode local && node openclaw.mjs config set gateway.controlUi.enabled false && node openclaw.mjs doctor --fix && node openclaw.mjs gateway run --allow-unconfigured --bind 0.0.0.0 --port ${PORT:-18789} --verbose",
+    "startCommand": "bash scripts/railway-setup.sh",
     "sleepApplication": false,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
