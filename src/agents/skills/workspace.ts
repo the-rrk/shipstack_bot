@@ -226,6 +226,9 @@ function loadSkillEntries(
     bundledSkillsDir?: string;
   },
 ): SkillEntry[] {
+  // #region agent log
+  try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:221',message:'loadSkillEntries entry',data:{workspaceDir},timestamp:Date.now(),runId:'debug1',hypothesisId:'A'})+'\n');}catch(e){}
+  // #endregion
   const limits = resolveSkillsLimits(opts?.config);
 
   const loadSkills = (params: { dir: string; source: string }): Skill[] => {
@@ -304,7 +307,13 @@ function loadSkillEntries(
       }
 
       const loaded = loadSkillsFromDir({ dir: skillDir, source: params.source });
-      loadedSkills.push(...unwrapLoadedSkills(loaded));
+      const unwrapped = unwrapLoadedSkills(loaded);
+      // #region agent log
+      if (name === 'website_builder') {
+        try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:309',message:'website_builder skill found',data:{skillDir,skillMd,loadedCount:unwrapped.length,loadedNames:unwrapped.map(s=>s.name)},timestamp:Date.now(),runId:'debug1',hypothesisId:'B'})+'\n');}catch(e){}
+      }
+      // #endregion
+      loadedSkills.push(...unwrapped);
 
       if (loadedSkills.length >= limits.maxSkillsLoadedPerSource) {
         break;
@@ -323,6 +332,9 @@ function loadSkillEntries(
 
   const managedSkillsDir = opts?.managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
   const workspaceSkillsDir = path.resolve(workspaceDir, "skills");
+  // #region agent log
+  try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:325',message:'workspace skills dir resolved',data:{workspaceDir,workspaceSkillsDir,exists:fs.existsSync(workspaceSkillsDir)},timestamp:Date.now(),runId:'debug1',hypothesisId:'D'})+'\n');}catch(e){}
+  // #endregion
   const bundledSkillsDir = opts?.bundledSkillsDir ?? resolveBundledSkillsDir();
   const extraDirsRaw = opts?.config?.skills?.load?.extraDirs ?? [];
   const extraDirs = extraDirsRaw
@@ -365,6 +377,9 @@ function loadSkillEntries(
     dir: workspaceSkillsDir,
     source: "openclaw-workspace",
   });
+  // #region agent log
+  try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:367',message:'workspace skills loaded',data:{workspaceSkillsDir,count:workspaceSkills.length,names:workspaceSkills.map(s=>s.name)},timestamp:Date.now(),runId:'debug1',hypothesisId:'D'})+'\n');}catch(e){}
+  // #endregion
 
   const merged = new Map<string, Skill>();
   // Precedence: extra < bundled < managed < agents-skills-personal < agents-skills-project < workspace
@@ -386,6 +401,9 @@ function loadSkillEntries(
   for (const skill of workspaceSkills) {
     merged.set(skill.name, skill);
   }
+  // #region agent log
+  try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:388',message:'merged skills before entries',data:{mergedCount:merged.size,mergedNames:Array.from(merged.keys()),hasWebsiteBuilder:merged.has('website_builder')},timestamp:Date.now(),runId:'debug1',hypothesisId:'C'})+'\n');}catch(e){}
+  // #endregion
 
   const skillEntries: SkillEntry[] = Array.from(merged.values()).map((skill) => {
     let frontmatter: ParsedSkillFrontmatter = {};
@@ -402,6 +420,9 @@ function loadSkillEntries(
       invocation: resolveSkillInvocationPolicy(frontmatter),
     };
   });
+  // #region agent log
+  try{const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fs.mkdirSync(path.dirname(logPath),{recursive:true});fs.appendFileSync(logPath,JSON.stringify({location:'workspace.ts:418',message:'final skillEntries',data:{total:skillEntries.length,names:skillEntries.map(e=>e.skill.name),hasWebsiteBuilder:skillEntries.some(e=>e.skill.name==='website_builder')},timestamp:Date.now(),runId:'debug1',hypothesisId:'C'})+'\n');}catch(e){}
+  // #endregion
   return skillEntries;
 }
 

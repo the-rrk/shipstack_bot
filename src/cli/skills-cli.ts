@@ -19,7 +19,11 @@ type SkillStatusReport = Awaited<
 
 async function loadSkillsStatusReport(): Promise<SkillStatusReport> {
   const config = loadConfig();
-  const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
+  const agentId = resolveDefaultAgentId(config);
+  const workspaceDir = resolveAgentWorkspaceDir(config, agentId);
+  // #region agent log
+  try{const fsMod=await import('node:fs');const pathMod=await import('node:path');const logPath='C:\\Users\\rahul\\MyProjects\\shipstack_bot\\.cursor\\debug.log';fsMod.mkdirSync(pathMod.dirname(logPath),{recursive:true});fsMod.appendFileSync(logPath,JSON.stringify({location:'skills-cli.ts:22',message:'skills status report workspace',data:{agentId,workspaceDir,configWorkspace:config.agents?.defaults?.workspace},timestamp:Date.now(),runId:'debug1',hypothesisId:'A'})+'\n');}catch(e){}
+  // #endregion
   const { buildWorkspaceSkillStatus } = await import("../agents/skills-status.js");
   return buildWorkspaceSkillStatus(workspaceDir, { config });
 }

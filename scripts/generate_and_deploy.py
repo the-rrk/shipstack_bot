@@ -1,9 +1,14 @@
+
 #!/usr/bin/env python3
 """
-Website Builder Skill Handler
+Prompt to Project: Generate a static website from a prompt and deploy to Vercel.
 
-Generates a complete static website from a prompt and deploys it to Vercel.
-Returns the live hosted URL.
+Usage:
+    python scripts/generate_and_deploy.py "Create a portfolio website for a photographer"
+    
+Environment variables required:
+    OPENAI_API_KEY_1 or OPENAI_API_KEY - OpenAI API key
+    VERCEL_TOKEN - Vercel deployment token
 """
 
 import os
@@ -14,10 +19,18 @@ import subprocess
 import re
 from pathlib import Path
 
+# Try to import openai
+try:
+    from openai import OpenAI
+except ImportError:
+    print("OpenAI library not found. Installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "openai"])
+    from openai import OpenAI
+
 # Load environment variables from .env file
 def load_env():
     """Load environment variables from .env file."""
-    env_path = Path(__file__).parent.parent.parent / ".env"
+    env_path = Path(__file__).parent.parent / ".env"
     if env_path.exists():
         with open(env_path) as f:
             for line in f:
@@ -34,7 +47,7 @@ load_env()
 # Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY_1") or os.getenv("OPENAI_API_KEY")
 VERCEL_TOKEN = os.getenv("VERCEL_TOKEN")
-PROJECTS_DIR = Path(__file__).parent.parent.parent / "projects"
+PROJECTS_DIR = Path(__file__).parent.parent / "projects"
 
 # Ensure projects directory exists
 PROJECTS_DIR.mkdir(exist_ok=True)
@@ -42,12 +55,6 @@ PROJECTS_DIR.mkdir(exist_ok=True)
 
 def generate_website_content(prompt: str) -> dict:
     """Use OpenAI to generate website content based on the prompt."""
-    try:
-        from openai import OpenAI
-    except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", "openai"])
-        from openai import OpenAI
-    
     if not OPENAI_API_KEY:
         raise ValueError("OpenAI API key not found. Set OPENAI_API_KEY_1 or OPENAI_API_KEY in .env")
     
@@ -405,135 +412,120 @@ console.log('Website loaded successfully!');
 '''
 
 
+def create_project(prompt: str) -> tuple[str, Path]:
+    """Create a project with generated content."""
+    print(f"🎨 Generating website content for: {prompt}")
+    
+    # Generate content using OpenAI
+    content = generate_website_content(prompt)
+    print(f"✅ Content generated: {content['site_name']}")
+    
+    # Create project directory
+    project_id = str(uuid.uuid4())[:8]
+    project_name = re.sub(r'[^a-z0-9-]', '-', content['site_name'].lower())[:30]
+    project_folder = f"{project_name}-{project_id}"
+    project_path = PROJECTS_DIR / project_folder
+    project_path.mkdir(parents=True, exist_ok=True)
+    
+    # Generate and save files
+    print("📝 Creating HTML...")
+    html_content = create_html(content)
+    (project_path / "index.html").write_text(html_content)
+    
+    print("🎨 Creating CSS...")
+    css_content = create_css(content)
+    (project_path / "styles.css").write_text(css_content)
+    
+    print("⚙️ Creating JavaScript...")
+    js_content = create_js()
+    (project_path / "script.js").write_text(js_content)
+    
+    print(f"✅ Project created at: {project_path}")
+    return project_id, project_path
+
+
 def deploy_to_vercel(project_path: Path) -> str:
     """Deploy the project to Vercel and return the URL."""
     if not VERCEL_TOKEN:
         raise ValueError("VERCEL_TOKEN not found in environment variables")
     
-    # Determine vercel command (Windows uses vercel.cmd, Unix uses vercel)
-    vercel_cmd = "vercel.cmd" if os.name == "nt" else "vercel"
+    print("🚀 Deploying to Vercel...")
     
-    # Run vercel deploy command with --public to ensure it's publicly accessible
+    # Run vercel deploy command
     result = subprocess.run(
-        [vercel_cmd, "--prod", "--yes", "--public", "--token", VERCEL_TOKEN],
+        ["vercel", "--prod", "--yes", "--token", VERCEL_TOKEN],
         cwd=project_path,
         capture_output=True,
         text=True
     )
     
     if result.returncode != 0:
+        print(f"❌ Deployment error: {result.stderr}")
         raise RuntimeError(f"Vercel deployment failed: {result.stderr}")
     
-    # Extract URL from output - look for production URL patterns
+    # Extract URL from output
     output = result.stdout.strip()
-    
-    # Try to find production URL (prefer production domain over preview)
-    # Vercel output format: "Production: https://project-name.vercel.app"
-    # or "https://project-name.vercel.app" on its own line
+    # The URL is usually the last line or contains https://
+    lines = output.split('\n')
     url = None
-    
-    # Look for "Production:" line first
-    for line in output.split('\n'):
+    for line in reversed(lines):
         line = line.strip()
-        if 'production' in line.lower() and 'https://' in line.lower():
-            url_match = re.search(r'https://[^\s]+\.vercel\.app[^\s]*', line)
-            if url_match:
-                url = url_match.group(0)
-                break
+        if line.startswith('https://'):
+            url = line
+            break
     
-    # If no production line found, look for any vercel.app URL
     if not url:
+        # Try to find URL in the output
         url_match = re.search(r'https://[^\s]+\.vercel\.app[^\s]*', output)
         if url_match:
             url = url_match.group(0)
     
-    # Fallback: look for any https:// URL
     if not url:
-        for line in reversed(output.split('\n')):
-            line = line.strip()
-            if line.startswith('https://'):
-                url = line
-                break
+        print(f"Full output: {output}")
+        raise RuntimeError("Could not extract deployment URL from Vercel output")
     
-    if not url:
-        raise RuntimeError(f"Could not extract deployment URL from Vercel output:\n{output}")
-    
+    print(f"✅ Deployed successfully!")
     return url
 
 
-def handle(prompt: str, **kwargs) -> dict:
-    """
-    Main handler function for the website_builder skill.
-    
-    Args:
-        prompt: User's description of the website they want
-        **kwargs: Additional arguments (llm, etc.)
-    
-    Returns:
-        dict with status, projectId, path, and url
-    """
-    try:
-        # Generate content using OpenAI
-        content = generate_website_content(prompt)
-        
-        # Create project directory
-        project_id = str(uuid.uuid4())[:8]
-        project_name = re.sub(r'[^a-z0-9-]', '-', content['site_name'].lower())[:30]
-        project_folder = f"{project_name}-{project_id}"
-        project_path = PROJECTS_DIR / project_folder
-        project_path.mkdir(parents=True, exist_ok=True)
-        
-        # Generate and save files
-        html_content = create_html(content)
-        (project_path / "index.html").write_text(html_content)
-        
-        css_content = create_css(content)
-        (project_path / "styles.css").write_text(css_content)
-        
-        js_content = create_js()
-        (project_path / "script.js").write_text(js_content)
-        
-        # Create vercel.json to ensure public deployment
-        vercel_config = {
-            "version": 2,
-            "public": True
-        }
-        (project_path / "vercel.json").write_text(json.dumps(vercel_config, indent=2))
-        
-        # Deploy to Vercel
-        url = deploy_to_vercel(project_path)
-        
-        return {
-            "status": "success",
-            "projectId": project_id,
-            "path": str(project_path),
-            "url": url,
-            "site_name": content['site_name']
-        }
-        
-    except Exception as e:
-        return {
-            "status": "error",
-            "error": str(e)
-        }
-
-
-# CLI entry point for direct execution
-if __name__ == "__main__":
+def main():
+    """Main entry point."""
     if len(sys.argv) < 2:
-        print("Usage: python handler.py \"Your website description\"")
+        print("Usage: python generate_and_deploy.py \"Your website description\"")
+        print("\nExample:")
+        print('  python generate_and_deploy.py "Create a portfolio website for a photographer"')
         sys.exit(1)
     
     prompt = " ".join(sys.argv[1:])
-    result = handle(prompt)
     
-    if result["status"] == "success":
-        print(f"\n✅ Website created successfully!")
-        print(f"📁 Local path: {result['path']}")
-        #dont use result['url'] because it is not global url
-        global_url = 'https://' + result['path'].split('\\')[-1] + '.vercel.app'
-        print(f"🔍 Global URL: {global_url}")
-        print(f"🔍 Site name: {result}")
-    else:
-        print(f"\n❌ Error: {result['error']}")
+    print("=" * 60)
+    print("🌐 Prompt to Project - Website Generator & Deployer")
+    print("=" * 60)
+    print()
+    
+    try:
+        # Step 1: Generate the website
+        project_id, project_path = create_project(prompt)
+        print()
+        
+        # Step 2: Deploy to Vercel
+        url = deploy_to_vercel(project_path)
+        print()
+        
+        # Final output
+        print("=" * 60)
+        print("🎉 SUCCESS!")
+        print("=" * 60)
+        print(f"📁 Local path: {project_path}")
+        print(f"🌍 Live URL:   {url}")
+        print("=" * 60)
+        
+        return url
+        
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
