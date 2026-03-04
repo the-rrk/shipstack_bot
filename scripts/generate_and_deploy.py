@@ -511,13 +511,15 @@ def main():
         # Step 2: Deploy to Vercel
         url = deploy_to_vercel(project_path)
         print()
-        
+        # Derive global URL from project folder name (matches handler logic)
+        project_folder = project_path.name  # e.g. "simple-test-page-323f0c27"
+        global_url = f"https://{project_folder}.vercel.app"
         # Final output
         print("=" * 60)
         print("🎉 SUCCESS!")
         print("=" * 60)
         print(f"📁 Local path: {project_path}")
-        print(f"🌍 Live URL:   {url}")
+        print(f"🌍 Live URL:   {global_url}")
         print("=" * 60)
         
         return url
