@@ -34,6 +34,7 @@ load_env()
 # Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY_1") or os.getenv("OPENAI_API_KEY")
 VERCEL_TOKEN = os.getenv("VERCEL_TOKEN")
+VERCEL_SCOPE = os.getenv("VERCEL_SCOPE")
 PROJECTS_DIR = Path(__file__).parent.parent.parent / "projects"
 
 # Ensure projects directory exists
@@ -414,8 +415,12 @@ def deploy_to_vercel(project_path: Path) -> str:
     vercel_cmd = "vercel.cmd" if os.name == "nt" else "vercel"
     
     # Run vercel deploy command with --public to ensure it's publicly accessible
+    cmd = [vercel_cmd, "--prod", "--yes", "--public", "--token", VERCEL_TOKEN]
+    if VERCEL_SCOPE:
+        cmd.extend(["--scope", VERCEL_SCOPE])
+
     result = subprocess.run(
-        [vercel_cmd, "--prod", "--yes", "--public", "--token", VERCEL_TOKEN],
+        cmd,
         cwd=project_path,
         capture_output=True,
         text=True
