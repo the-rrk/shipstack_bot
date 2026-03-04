@@ -506,8 +506,8 @@ def handle(prompt: str, **kwargs) -> dict:
         (project_path / "vercel.json").write_text(json.dumps(vercel_config, indent=2))
         
         # Deploy to Vercel
-        url = deploy_to_vercel(project_path)
-        url = 'https://' + str(project_path).split('\\')[-1] + '.vercel.app'
+        deploy_to_vercel(project_path)
+        url = f"https://{project_folder}.vercel.app"
         return {
             "status": "success",
             "projectId": project_id,
@@ -535,11 +535,8 @@ if __name__ == "__main__":
     if result["status"] == "success":
         print(f"\n✅ Website created successfully!")
         print(f"📁 Local path: {result['path']}")
-        #dont use result['url'] because it is not global url
-        global_url = 'https://' + result['path'].split('\\')[-1] + '.vercel.app'
-        url =global_url
-        print(f"🔍 Live URL: {url}")
-        print(f"🔍 Site name: {result}")
+        print(f"🔍 Live URL: {result['url']}")
+        print(f"🔍 Site name: {result['site_name']}")
     else:
         print(f"\n❌ Error: {result['error']}")
         sys.exit(1)
