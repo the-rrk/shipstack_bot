@@ -125,7 +125,7 @@ dist/protocol.schema.json
 
 # Python projects
 .venv/
-projects/
+projects/*
 .cursor/
 .openclaw/
 HEARTBEAT.md

@@ -1,8 +1,4 @@
 .git
-!pnpm-lock.yaml
-!pnpm-workspace.yaml
-!package.json
-!.npmrc
 .worktrees
 .bun-cache
 .bun
