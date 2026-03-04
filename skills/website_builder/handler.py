@@ -537,7 +537,8 @@ if __name__ == "__main__":
         print(f"📁 Local path: {result['path']}")
         #dont use result['url'] because it is not global url
         global_url = 'https://' + result['path'].split('\\')[-1] + '.vercel.app'
-        print(f"🔍 Global URL: {global_url}")
+        url =global_url
+        print(f"🔍 Live URL: {url}")
         print(f"🔍 Site name: {result}")
     else:
         print(f"\n❌ Error: {result['error']}")

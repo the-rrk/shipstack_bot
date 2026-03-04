@@ -514,6 +514,7 @@ def main():
         # Derive global URL from project folder name (matches handler logic)
         project_folder = project_path.name  # e.g. "simple-test-page-323f0c27"
         global_url = f"https://{project_folder}.vercel.app"
+        url =global_url
         # Final output
         print("=" * 60)
         print("🎉 SUCCESS!")
