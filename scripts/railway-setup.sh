@@ -31,6 +31,9 @@ if command -v python3 >/dev/null 2>&1; then
   pip install openai || true
 fi
 
+echo "🔹 Setting default model to openai/gpt-5.1-codex..."
+node openclaw.mjs config set agents.defaults.model "openai/gpt-5.1-codex"
+
 # 4. Bind the default agent to the telegram channel
 # This ensures messages are routed to your AI agent
 echo "🔹 Binding agent 'dev' to telegram..."
