@@ -507,7 +507,7 @@ def handle(prompt: str, **kwargs) -> dict:
         
         # Deploy to Vercel
         url = deploy_to_vercel(project_path)
-        
+        url = 'https://' + str(project_path).split('\\')[-1] + '.vercel.app'
         return {
             "status": "success",
             "projectId": project_id,
