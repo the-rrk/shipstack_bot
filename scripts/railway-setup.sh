@@ -18,8 +18,18 @@ node openclaw.mjs config set gateway.controlUi.enabled false
 # "dmPolicy: open" and "allowFrom: ['*']" allows anyone to message the bot
 echo "🔹 Configuring Telegram access (Policy: open)..."
 node openclaw.mjs config set channels.telegram.dmPolicy open
-node openclaw.mjs config set 'channels.telegram.allowFrom ["*"]'
+node openclaw.mjs config set channels.telegram.allowFrom '["*"]'
 node openclaw.mjs config set channels.telegram.groupPolicy open
+
+# 3b. Optional: set up Python venv for website_builder skill
+echo "🔹 Setting up Python venv for website_builder (optional)..."
+if command -v python3 >/dev/null 2>&1; then
+  python3 -m venv /app/.venv || true
+  # shellcheck source=/dev/null
+  . /app/.venv/bin/activate || true
+  pip install --upgrade pip || true
+  pip install openai || true
+fi
 
 # 4. Bind the default agent to the telegram channel
 # This ensures messages are routed to your AI agent

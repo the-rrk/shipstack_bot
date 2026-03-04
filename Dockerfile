@@ -9,6 +9,14 @@ RUN corepack enable
 WORKDIR /app
 RUN chown node:node /app
 
+# Install Python 3 for website_builder skill
+USER root
+RUN apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+  python3 python3-venv python3-pip && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
   apt-get update && \
@@ -26,7 +34,6 @@ USER node
 # Reduce OOM risk on low-memory hosts during dependency installation.
 # Docker builds on small VMs may otherwise fail with "Killed" (exit 137).
 RUN NODE_OPTIONS=--max-old-space-size=2048 pnpm install --frozen-lockfile
-
 # Optionally install Chromium and Xvfb for browser automation.
 # Build with: docker build --build-arg OPENCLAW_INSTALL_BROWSER=1 ...
 # Adds ~300MB but eliminates the 60-90s Playwright install on every container start.
@@ -55,6 +62,9 @@ RUN pnpm ui:build
 USER root
 RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw \
   && chmod 755 /app/openclaw.mjs
+
+# Install Vercel CLI for website_builder deployments
+RUN npm install -g vercel
 
 ENV NODE_ENV=production
 
