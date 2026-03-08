@@ -32,7 +32,6 @@ def load_env():
 load_env()
 
 # Configuration
-# API key fallback logic: Try OPENAI_API_KEY_1 first (useful for rotating keys or secondary environments), then fallback to standard OPENAI_API_KEY
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY_1") or os.getenv("OPENAI_API_KEY")
 VERCEL_TOKEN = os.getenv("VERCEL_TOKEN")
 VERCEL_SCOPE = os.getenv("VERCEL_SCOPE")
@@ -44,7 +43,11 @@ PROJECTS_DIR.mkdir(exist_ok=True)
 
 def generate_website_content(prompt: str) -> dict:
     """Use OpenAI to generate website content based on the prompt."""
-    from openai import OpenAI
+    try:
+        from openai import OpenAI
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", "openai"])
+        from openai import OpenAI
     
     if not OPENAI_API_KEY:
         raise ValueError("OpenAI API key not found. Set OPENAI_API_KEY_1 or OPENAI_API_KEY in .env")
@@ -85,7 +88,6 @@ Only return valid JSON, no other text."""
     
     content = response.choices[0].message.content
     # Clean up potential markdown code blocks
-    # JSON-cleaning regex: LLMs often wrap JSON in markdown block ticks (```json ... ```). These regexes strip the markdown wrappers so the output can be parsed directly by json.loads()
     content = re.sub(r'^```json\s*', '', content)
     content = re.sub(r'\s*```$', '', content)
     
@@ -431,10 +433,6 @@ def deploy_to_vercel(project_path: Path) -> str:
     output = result.stdout.strip()
     
     # Try to find production URL (prefer production domain over preview)
-    # Vercel URL extraction strategy:
-    # 1. Look for a line containing 'production' and a vercel.app URL.
-    # 2. If not found, look for any vercel.app URL in the whole output.
-    # 3. Fallback: look for any https:// URL starting from the end of the output.
     # Vercel output format: "Production: https://project-name.vercel.app"
     # or "https://project-name.vercel.app" on its own line
     url = None
@@ -526,7 +524,6 @@ def handle(prompt: str, **kwargs) -> dict:
 
 
 # CLI entry point for direct execution
-# CLI entry point: Allows testing the skill logic directly from the terminal without the full Shipstack gateway running.
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python handler.py \"Your website description\"")
