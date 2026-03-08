@@ -128,12 +128,12 @@ The bot generates the site and replies with the live URL.
 
 ## Deployment Targets
 
-| Platform | Status | Description |
-|----------|--------|-------------|
-| **Vercel** | Supported | Static sites deployed via Vercel CLI |
-| **Supabase** | Planned | Full-stack apps with database and auth |
-| **Railway** | Planned | Backend services and APIs |
-| **Custom Hardware** | Planned | Deploy to your own servers via SSH/Docker |
+| Platform            | Status    | Description                               |
+| ------------------- | --------- | ----------------------------------------- |
+| **Vercel**          | Supported | Static sites deployed via Vercel CLI      |
+| **Supabase**        | Planned   | Full-stack apps with database and auth    |
+| **Railway**         | Planned   | Backend services and APIs                 |
+| **Custom Hardware** | Planned   | Deploy to your own servers via SSH/Docker |
 
 ## Deploy Shipstack Itself to Railway
 
@@ -219,7 +219,7 @@ Shipstack is built on top of [OpenClaw](https://github.com/openclaw/openclaw), a
 
 Contributions are welcome!
 
-1. Fork the repository
+1. Clone the repository
 2. Create a feature branch (`git checkout -b feature/my-feature`)
 3. Make your changes
 4. Run tests: `pnpm test`
