@@ -17,11 +17,12 @@ OpenClaw provides the AI agent foundation (gateway, agent orchestration, skill s
 
 ## Features
 
-- **AI-Powered Generation** — Describe your project in a prompt; Shipstack builds it using OpenAI via OpenClaw's agent system
-- **Multi-Platform Deployment** — Deploy to Vercel (supported now), with Supabase, Railway, and self-hosted targets planned
+- **AI-Powered Generation** — Describe your project in a prompt; Shipstack plans and scaffolds static sites or full-stack apps with OpenAI-backed blueprints and deterministic fallbacks
+- **Multi-Platform Deployment** — Prepare or deploy generated projects to Vercel, Railway, and Supabase-backed environments
 - **Bot Interface** — Interact via Telegram to trigger builds and receive live URLs
-- **Smart Scaffolding** — Generates complete HTML, CSS, and JavaScript with AI-tailored content, colors, and copy
+- **Smart Scaffolding** — Generates full project structures including frontend assets, Node backends, Dockerfiles, SQL migrations, and deployment metadata
 - **Project Management** — Each build gets a unique project folder under `projects/`
+- **Git Provider Integration** — Connect GitHub, GitLab, or Bitbucket, list accessible repositories, and apply generated changes to a selected branch
 - **Docker and Railway Ready** — One-click cloud deployment for the Shipstack bot itself
 
 ## Installation
@@ -62,9 +63,10 @@ cp .env.example .env
 - **Node.js** >= 22
 - **Python** >= 3.10
 - **pnpm** (recommended) or npm
-- **Vercel CLI** — `npm install -g vercel`
+- **Vercel CLI** — `npm install -g vercel` for Vercel deploys
+- **Railway CLI** — optional, for Railway deploys
 - An **OpenAI API key**
-- A **Vercel API token**
+- A **Vercel API token** for Vercel deployment
 
 ## Environment Variables
 
@@ -75,36 +77,55 @@ Create a `.env` file in the project root (or copy `.env.example`):
 # Get one at: https://platform.openai.com/api-keys
 OPENAI_API_KEY=sk-your-openai-api-key
 
-# Required — Vercel token for deployment
+# Optional — Vercel token for deployment
 # Get one at: https://vercel.com/account/tokens
 VERCEL_TOKEN=your-vercel-token
 
 # Optional — Vercel team scope (if deploying under a team)
 VERCEL_SCOPE=your-vercel-team
 
+# Optional — Railway token for deployment
+RAILWAY_TOKEN=your-railway-token
+
+# Optional — Supabase project wiring
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+SUPABASE_PROJECT_REF=your-supabase-project-ref
+
+# Optional — Git provider tokens
+GITHUB_TOKEN=ghp_your-token
+GITLAB_TOKEN=glpat-your-token
+BITBUCKET_USERNAME=your-bitbucket-username
+BITBUCKET_APP_PASSWORD=your-bitbucket-app-password
+BITBUCKET_WORKSPACE=your-bitbucket-workspace
+
 # Optional — Telegram bot token (for bot interface)
 # Create a bot via @BotFather on Telegram
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 ```
 
-Future deployment targets will use additional variables (e.g. `SUPABASE_ACCESS_TOKEN`, `RAILWAY_TOKEN`).
-
 ## Usage
 
 ### CLI
 
-Generate and deploy a website directly from the command line:
+Generate and deploy a project directly from the command line:
 
 ```bash
-# Using the skill handler directly (current)
+# Static site
 python skills/website_builder/handler.py "Build a portfolio site for a photographer named Alex"
+
+# Full-stack app prepared for Railway and Supabase
+python skills/website_builder/handler.py "Build a customer portal with login, database, and Railway deployment"
 ```
 
 Example output:
 
 ```
-✅ Website created successfully!
+✅ Project created successfully!
 📁 Local path: projects/alex-photography-a1b2c3d4/
+🧩 Project type: static_site
+🚀 Deploy target: vercel
 🌍 Live URL: https://alex-photography-a1b2c3d4.vercel.app
 ```
 
@@ -124,16 +145,16 @@ Then send a message to your Telegram bot:
 
 > "Build me a landing page for a SaaS product called CloudSync that helps teams collaborate in real-time"
 
-The bot generates the site and replies with the live URL.
+The bot generates the project and replies with the local path plus any deployment URL returned by the selected handler.
 
 ## Deployment Targets
 
-| Platform            | Status    | Description                               |
-| ------------------- | --------- | ----------------------------------------- |
-| **Vercel**          | Supported | Static sites deployed via Vercel CLI      |
-| **Supabase**        | Planned   | Full-stack apps with database and auth    |
-| **Railway**         | Planned   | Backend services and APIs                 |
-| **Custom Hardware** | Planned   | Deploy to your own servers via SSH/Docker |
+| Platform            | Status    | Description                                                               |
+| ------------------- | --------- | ------------------------------------------------------------------------- |
+| **Vercel**          | Supported | Static sites deployed via Vercel CLI                                      |
+| **Supabase**        | Supported | Auth/data integration, env wiring, and SQL migrations for full-stack apps |
+| **Railway**         | Supported | Full-stack app deployment preparation and CLI deploy flow                 |
+| **Custom Hardware** | Planned   | Deploy to your own servers via SSH/Docker                                 |
 
 ## Deploy Shipstack Itself to Railway
 
@@ -157,11 +178,15 @@ shipstack/
 │   └── config/                  # Configuration management
 │
 ├── skills/                      # Pluggable AI skills
-│   └── website_builder/         # Website generation + Vercel deployment
-│       ├── handler.py           # Main skill logic (OpenAI → HTML → Vercel)
+│   └── website_builder/         # Project generation + deploy/git pipeline
+│       ├── handler.py           # Main skill entrypoint
+│       ├── wb_pipeline.py       # Planner → scaffold → deploy → git flow
+│       ├── wb_scaffold.py       # Static and full-stack scaffold writers
+│       ├── wb_deploy.py         # Vercel, Railway, and Supabase handlers
+│       ├── wb_git.py            # GitHub, GitLab, and Bitbucket integrations
 │       ├── SKILL.md             # Skill documentation and triggers
 │       ├── skill.yaml           # Skill metadata
-│       └── templates/           # HTML/CSS/JS base templates
+│       └── templates/           # Base templates and assets
 │
 ├── scripts/                     # Deployment and setup scripts
 │   └── railway-setup.sh         # Railway boot script
@@ -178,20 +203,25 @@ shipstack/
 flowchart LR
   Prompt[User Prompt] --> OpenClaw[OpenClaw Agent]
   OpenClaw --> AIGen[AI Generation]
-  AIGen --> Scaffold[Project Scaffolder]
+  AIGen --> Planner[Project Planner]
+  Planner --> Scaffold[Project Scaffolder]
   Scaffold --> Projects["projects/ folder"]
+  Projects --> Integrations[Supabase Handler]
   Projects --> DeployTarget{Deploy Target}
+  Projects --> RepoOps[Git Provider Flow]
   DeployTarget --> Vercel[Vercel]
-  DeployTarget --> Supabase["Supabase (planned)"]
-  DeployTarget --> Railway["Railway (planned)"]
-  DeployTarget --> Custom["Custom Hardware (planned)"]
+  DeployTarget --> Railway[Railway]
+  Integrations --> Supabase[Supabase]
+  RepoOps --> GitHub[GitHub or GitLab or Bitbucket]
 ```
 
 1. **User sends a prompt** — via CLI or Telegram bot
 2. **OpenClaw agent** receives the prompt and routes it to the appropriate skill
-3. **AI generates content** — site name, copy, colors, features — as structured JSON via OpenAI
-4. **Scaffolder creates files** — `index.html`, `styles.css`, `script.js` in a new project folder
-5. **Deployment** — the project is deployed to the chosen platform (currently Vercel) and the live URL is returned
+3. **AI or fallback planner** builds a project blueprint — app type, routes, entities, features, and deployment target
+4. **Scaffolder creates files** — static assets or a full-stack Node project with deploy metadata
+5. **Integration handlers** generate Supabase config and SQL migrations when requested
+6. **Deployment handlers** deploy or prepare the project for Vercel, Railway, or local use
+7. **Git adapters** can list repos, clone a chosen repo, apply changes, and push them to a branch
 
 ## Built on OpenClaw
 
@@ -207,9 +237,9 @@ Shipstack is built on top of [OpenClaw](https://github.com/openclaw/openclaw), a
 - [ ] Publish as npm package (`npm install -g shipstack`)
 - [ ] `shipstack build "prompt"` CLI command
 - [ ] More project types — React, Next.js, API backends
-- [ ] Supabase integration — full-stack apps with database and auth
-- [ ] Railway auto-deploy — backend services and APIs
-- [ ] GitHub repo creation for generated projects
+- [x] Supabase integration — full-stack apps with database and auth
+- [x] Railway auto-deploy — backend services and APIs
+- [x] Git provider repo updates for generated projects
 - [ ] Custom domain support
 - [ ] Interactive editing ("change the hero color to blue")
 - [ ] Project templates library

@@ -1,19 +1,19 @@
 ---
 name: website_builder
-description: "Generate a complete static website from a prompt and deploy it to Vercel. Use when: user asks to build, create, or make a website, landing page, portfolio, or any static web page. Returns the live hosted URL. NOT for: dynamic web apps, backend APIs, or database-driven sites."
+description: "Generate static sites or full-stack apps from a prompt, prepare Railway or Supabase handlers, and optionally apply the output into a hosted Git repository. Use when users want a new project scaffold, deployment-ready app, or repo modifications driven by a prompt."
 metadata:
   {
     "openclaw":
       {
         "emoji": "🌐",
-        "requires": { "bins": ["python3", "vercel"], "env": ["VERCEL_TOKEN", "OPENAI_API_KEY_1"] },
+        "requires": { "bins": ["python3"] },
       },
   }
 ---
 
-# Website Builder & Deployer
+# Website And App Builder
 
-Generate beautiful static websites from natural language prompts and deploy them instantly to Vercel.
+Generate deployable software projects from natural language prompts. The skill can produce a static website, scaffold a full-stack app, wire Supabase artifacts, prepare Railway deployment files, and optionally clone a GitHub, GitLab, or Bitbucket repository to apply the generated changes there.
 
 ## When to Use
 
@@ -22,98 +22,132 @@ Generate beautiful static websites from natural language prompts and deploy them
 - "Build me a website for..."
 - "Create a landing page for..."
 - "Make a portfolio site for..."
-- "Generate a homepage for my business"
-- Any request to create and host a static website
+- "Build me a customer portal with auth and a database"
+- "Deploy this app to Railway"
+- "Use Supabase for auth/data"
+- "Update my GitHub repo with these changes"
 
 ## When NOT to Use
 
 ❌ **DON'T use this skill when:**
 
-- User wants a dynamic web app with backend
-- User needs database integration
-- User wants to edit an existing website
-- User just wants HTML code (not hosted)
+- The user only wants a code explanation or architecture review
+- The user wants low-level manual Git operations unrelated to code generation
+- The user has not chosen a repo yet and needs a human review before applying changes
+- The user wants arbitrary destructive edits across an existing monorepo root
 
 ## Command
 
-Run the website builder handler with the user's prompt (using the project's virtual environment):
+Run the builder handler with the user's prompt (using the project's virtual environment):
 
 ```bash
 .venv/bin/python skills/website_builder/handler.py "<user's website description>"
 ```
 
-On Windows, this also works:
+Optional kwargs that the agent may pass:
+
+- `project_type`: `static_site` or `fullstack_app`
+- `deploy_target`: `vercel`, `railway`, `supabase`, or `local`
+- `use_supabase`: `true` or `false`
+- `git_provider`: `github`, `gitlab`, or `bitbucket`
+- `git_repo`: repo full name such as `owner/repo`
+- `git_branch`: target branch to update/create
+- `repo_subdir`: optional subdirectory inside the selected repo
+
+On Windows, direct execution also works:
+
 ```bash
 .venv/bin/python skills\website_builder\handler.py "<user's website description>"
 ```
 
 ### Example
 
-**User:** "Build me a portfolio website for a photographer named Alex who specializes in landscape photography"
+**User:** "Build a customer dashboard with login, deploy it on Railway, wire Supabase auth, and update my GitHub repo"
 
 ```bash
-python skills/website_builder/handler.py "Build a portfolio website for a photographer named Alex who specializes in landscape photography"
+python skills/website_builder/handler.py "Build a customer dashboard with login, deploy it on Railway, wire Supabase auth"
 ```
 
 ### Output
 
 The script returns:
 
-- `✅ Website created successfully!`
+- `✅ Project created successfully!`
 - `📁 Local path: projects/<project-name>-<id>/`
-- `🌍 Live URL: https://<project>.vercel.app`
+- `🧩 Project type: static_site | fullstack_app`
+- `🚀 Deploy target: vercel | railway | supabase | local`
+- `🌍 Live URL: <when a deploy handler returns one>`
+- `git.available_repos` when a Git provider is supplied without a repo
 
 ## What Gets Generated
 
-The handler creates a complete website with:
+For static projects, the handler creates:
 
 1. **index.html** - Modern, responsive HTML with:
-   - Hero section with title and tagline
-   - Features/services section (3 cards)
-   - Contact form section
+   - Hero section
+   - Features/services cards
+   - Contact section
    - Footer
 
 2. **styles.css** - Professional CSS with:
-   - Custom color scheme based on the theme
+   - Theme colors
    - Gradient hero background
-   - Responsive design
-   - Smooth animations
+   - Responsive layout
 
 3. **script.js** - Interactive JavaScript:
-   - Smooth scrolling
    - Form handling
-   - Scroll animations
+
+For full-stack projects, the handler creates:
+
+1. **server.js** - Express-based API and static file host
+2. **public/** - Frontend assets for the generated app
+3. **package.json** - Runtime dependencies and start scripts
+4. **railway.json** and **Dockerfile** - Railway-ready deployment files
+5. **supabase/** - Config and SQL migration artifacts when Supabase is enabled
+6. **shipstack.project.json** - Generated project metadata for later automation
 
 ## Response Format
 
 After running the command, respond to the user with:
 
 ```
-✅ I've created and deployed your website!
+✅ I've created your project!
 
-🌍 **Live URL:** [paste the URL here]
+🧩 **Project type:** [static_site or fullstack_app]
+🚀 **Deploy target:** [vercel, railway, supabase, or local]
+🌍 **Live URL:** [if available]
 📁 **Local files:** [paste the path]
+🔧 **Git status:** [selection required, ready, committed, or pushed]
 
-The site includes:
-- [Brief description of what was generated]
-- Hero section with your tagline
-- Features/services showcase
-- Contact form
-- Responsive mobile design
+The project includes:
+- [Brief summary]
+- Generated app files
+- Deployment-ready config
+- Integration artifacts when requested
+- Repo update details when a git provider was used
 
-You can visit your live site now at the URL above!
+If `git.available_repos` is returned, ask the user which repo to use next.
 ```
 
 ## Requirements
 
 - `python3` - Python 3.x interpreter
-- `vercel` - Vercel CLI for deployment
-- `VERCEL_TOKEN` - Vercel API token (in .env)
-- `OPENAI_API_KEY_1` - OpenAI API key for content generation (in .env)
+- Optional `vercel` CLI plus `VERCEL_TOKEN` for Vercel deployment
+- Optional Railway CLI plus `RAILWAY_TOKEN` for Railway deployment
+- Optional Git provider tokens:
+  - `GITHUB_TOKEN`
+  - `GITLAB_TOKEN`
+  - `BITBUCKET_USERNAME`, `BITBUCKET_APP_PASSWORD`, `BITBUCKET_WORKSPACE`
+- Optional Supabase env vars:
+  - `SUPABASE_URL`
+  - `SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+  - `SUPABASE_PROJECT_REF`
+- Optional `OPENAI_API_KEY_1` or `OPENAI_API_KEY` for richer AI-generated blueprints
 
 ## Notes
 
-- The website is deployed to Vercel's free tier
-- Each generation creates a unique project folder
-- Colors and content are AI-generated based on the prompt
-- Sites are fully responsive and mobile-friendly
+- Without OpenAI credentials, the skill falls back to a deterministic project blueprint
+- When targeting a hosted Git repo without `git_repo`, the skill returns a repo list instead of mutating anything
+- Repo updates default to a generated subdirectory inside the cloned repo unless `repo_subdir` is specified
+- Supabase is currently integrated by generating config and migration assets plus env validation

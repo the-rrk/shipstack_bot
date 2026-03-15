@@ -1,8 +1,18 @@
 name: website_builder
-description: Generates a complete static website and saves it to a local /projects directory.
+description: Generates static or full-stack projects, prepares deployment handlers, and can apply changes to hosted Git repositories.
 triggers:
   - "build website"
   - "create site"
   - "make website"
+  - "build app"
+  - "deploy app"
+  - "update repo"
 inputs:
   prompt: string
+  project_type: optional_string
+  deploy_target: optional_string
+  use_supabase: optional_boolean
+  git_provider: optional_string
+  git_repo: optional_string
+  git_branch: optional_string
+  repo_subdir: optional_string
