@@ -58,7 +58,29 @@ pip install -r requirements.txt
 
 ## 2. Create `.env`
 
-There is currently no `.env.example` in this repo, so create a `.env` file in the repo root manually.
+This repo includes a root `.env.example`.
+
+Copy it to `.env`:
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Windows `cmd.exe`:
+
+```bat
+copy .env.example .env
+```
+
+macOS/Linux:
+
+```bash
+cp .env.example .env
+```
+
+You can also use `~/.openclaw/.env` for daemon-style runs, but `.env` in the repo root is the simplest option for local development.
 
 Minimum local setup:
 
@@ -90,6 +112,8 @@ TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 
 Notes:
 
+- `.env.example` already includes core OpenClaw variables such as `OPENCLAW_GATEWAY_TOKEN`.
+- Environment loading precedence is: process env, `./.env`, `~/.openclaw/.env`, then the `env` block in `openclaw.json`.
 - If `OPENAI_API_KEY` is missing, the builder falls back to a deterministic project blueprint.
 - If deploy tokens are missing, Shipstack still generates the project but marks deployment as `prepared` instead of fully deployed.
 - If a Git provider token is missing, repo listing and push flows will fail for that provider.
